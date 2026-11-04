@@ -2,7 +2,7 @@
   "name": "autoapprove",
   "version": "1.0.0",
   "private": true,
-  "description": "Chrome extension that auto-approves GitHub PRs when you open the Files changed page.",
+  "description": "Browser extension that auto-approves GitHub PRs when you open the Files changed page. Loads in Chrome, Firefox, and Safari.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

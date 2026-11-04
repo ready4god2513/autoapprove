@@ -1,7 +1,9 @@
 /**
- * Types, defaults and messaging helpers shared by the background service
- * worker, the content script and the options page.
+ * Types, defaults and messaging helpers shared by the background script,
+ * the content script and the options page.
  */
+
+import { ext } from "./ext";
 
 /** Identifies a single pull request. */
 export interface PullRef {
@@ -10,7 +12,7 @@ export interface PullRef {
   number: number;
 }
 
-/** User settings synced across browsers via `chrome.storage.sync`. */
+/** User settings synced by the browser via `storage.sync`. */
 export interface SyncSettings {
   /** Master on/off switch. */
   enabled: boolean;
@@ -22,7 +24,7 @@ export interface SyncSettings {
   body: string;
 }
 
-/** Settings stored only on this device via `chrome.storage.local`. */
+/** Settings stored only on this device via `storage.local`. */
 export interface LocalSettings {
   /** GitHub token. Kept local so it never syncs to other machines. */
   token: string;
@@ -44,8 +46,8 @@ export const LOCAL_DEFAULTS: LocalSettings = {
 /** Reads all settings, filling in defaults for anything unset. */
 export async function getSettings(): Promise<Settings> {
   const [sync, local] = await Promise.all([
-    chrome.storage.sync.get(SYNC_DEFAULTS) as Promise<SyncSettings>,
-    chrome.storage.local.get(LOCAL_DEFAULTS) as Promise<LocalSettings>,
+    ext.storage.sync.get(SYNC_DEFAULTS) as Promise<SyncSettings>,
+    ext.storage.local.get(LOCAL_DEFAULTS) as Promise<LocalSettings>,
   ]);
   return { ...sync, ...local };
 }
@@ -74,13 +76,13 @@ export type Response<T extends Request["type"]> =
   | { ok: false; error: string };
 
 /**
- * Sends a typed message to the background service worker. Never throws:
+ * Sends a typed message to the background script. Never throws:
  * failures (including a reloaded extension invalidating the page's
  * connection) come back as `{ ok: false, error }`.
  */
 export async function send<T extends Request>(req: T): Promise<Response<T["type"]>> {
   try {
-    const res = (await chrome.runtime.sendMessage(req)) as Response<T["type"]> | undefined;
+    const res = (await ext.runtime.sendMessage(req)) as Response<T["type"]> | undefined;
     return res ?? { ok: false, error: "no response from background" };
   } catch (err) {
     return { ok: false, error: errorMessage(err) };

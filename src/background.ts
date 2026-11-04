@@ -1,11 +1,16 @@
 /**
- * Background service worker.
+ * Background script.
  *
  * Owns all GitHub API traffic so the token never touches github.com page
  * context. The content script asks it two things: "should this PR be
  * approved?" (`check`) and "approve it" (`approve`).
+ *
+ * Chrome runs this file as a service worker. Firefox and Safari run it as
+ * an event page (`background.scripts` in the manifest). Listeners stay at
+ * the top level so the browser can wake the background after unloading it.
  */
 
+import { ext, isChromium } from "./ext";
 import {
   errorMessage,
   getSettings,
@@ -33,8 +38,8 @@ interface GitHubReview {
 }
 
 /**
- * Login of the token's owner. Cached in memory to save a request per PR;
- * Chrome may kill the service worker at any time, which just means we
+ * Login of the token's owner. Cached in memory to save a request per PR.
+ * The browser may unload the background at any time, which just means we
  * fetch it again.
  */
 let cachedLogin: string | null = null;
@@ -163,20 +168,29 @@ async function handle(req: Request): Promise<ResponsePayloads[Request["type"]]> 
   }
 }
 
-chrome.runtime.onMessage.addListener((msg: Request, _sender, sendResponse: (res: Response<Request["type"]>) => void) => {
-  handle(msg)
-    .then((payload) => sendResponse({ ok: true, ...payload }))
-    .catch((err: unknown) => sendResponse({ ok: false, error: errorMessage(err) }));
-  // Returning true keeps the message channel open for the async response.
-  return true;
+ext.runtime.onMessage.addListener((msg: Request, _sender, sendResponse: (res: Response<Request["type"]>) => void) => {
+  const pending = handle(msg).then(
+    (payload): Response<Request["type"]> => ({ ok: true, ...payload }),
+    (err: unknown): Response<Request["type"]> => ({ ok: false, error: errorMessage(err) }),
+  );
+
+  // Chromium delivers the reply from sendResponse, and only if the listener
+  // returns true. Also returning the promise makes current Chrome reply twice.
+  // Firefox and Safari deliver a promise returned from the listener. Safari
+  // has dropped a late sendResponse, so those browsers take the promise path.
+  if (isChromium()) {
+    pending.then(sendResponse);
+    return true;
+  }
+  return pending;
 });
 
 // A new token may belong to a different user, so drop the cached login.
-chrome.storage.onChanged.addListener((changes, area) => {
+ext.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.token) cachedLogin = null;
 });
 
 // There's no popup: clicking the toolbar icon opens the settings page.
-chrome.action.onClicked.addListener(() => {
-  void chrome.runtime.openOptionsPage();
+ext.action.onClicked.addListener(() => {
+  void ext.runtime.openOptionsPage();
 });
