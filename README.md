@@ -4,10 +4,33 @@ A Chrome extension that approves a GitHub pull request when you open its **Files
 
 ## Install
 
-1. Go to `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and pick this folder.
-3. Click the extension's toolbar icon to open settings.
-4. Paste a GitHub token, click **Test**, add your repos to the allowlist (for example `Teamwork/*`), then click **Save**.
+1. Build it:
+   ```sh
+   npm install
+   npm run build
+   ```
+2. Go to `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and pick the `dist/` folder.
+4. Click the extension's toolbar icon to open settings.
+5. Paste a GitHub token, click **Test**, add your repos to the allowlist (for example `Teamwork/*`), then click **Save**.
+
+## Development
+
+The code is TypeScript in `src/`, bundled with esbuild into `dist/`. The manifest and options page live in `static/` and are copied to `dist/` as they are.
+
+| Command             | What it does                                         |
+| ------------------- | ---------------------------------------------------- |
+| `npm run build`     | Builds into `dist/`                                  |
+| `npm run watch`     | Rebuilds `src/` on every change (with source maps)   |
+| `npm run typecheck` | Runs `tsc` with no output files                      |
+| `npm run check`     | Type checks, then builds                             |
+
+After a rebuild, click the reload icon on the extension in `chrome://extensions`. Files in `static/` aren't watched, so re-run the build after editing them.
+
+- `src/background.ts`: service worker that makes every GitHub API call
+- `src/content.ts`: detects PR pages and shows the countdown
+- `src/options.ts`: settings page
+- `src/shared.ts`: settings, message types and the typed `send()` helper
 
 ## Token
 
