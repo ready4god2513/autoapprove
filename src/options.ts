@@ -15,7 +15,6 @@ function el<T extends HTMLElement>(id: string): T {
 const fields = {
   enabled: el<HTMLInputElement>("enabled"),
   token: el<HTMLInputElement>("token"),
-  allowlist: el<HTMLTextAreaElement>("allowlist"),
   delaySeconds: el<HTMLInputElement>("delaySeconds"),
   skipDrafts: el<HTMLInputElement>("skipDrafts"),
   body: el<HTMLInputElement>("body"),
@@ -31,7 +30,6 @@ async function load(): Promise<void> {
   const s = await getSettings();
   fields.enabled.checked = s.enabled;
   fields.token.value = s.token;
-  fields.allowlist.value = s.allowlist;
   fields.delaySeconds.value = String(s.delaySeconds);
   fields.skipDrafts.checked = s.skipDrafts;
   fields.body.value = s.body;
@@ -47,7 +45,6 @@ async function saveToken(): Promise<void> {
 async function save(): Promise<void> {
   const sync: SyncSettings = {
     enabled: fields.enabled.checked,
-    allowlist: fields.allowlist.value,
     delaySeconds: Math.max(0, Number(fields.delaySeconds.value) || 0),
     skipDrafts: fields.skipDrafts.checked,
     body: fields.body.value,

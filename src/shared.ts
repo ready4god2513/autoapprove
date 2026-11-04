@@ -14,8 +14,6 @@ export interface PullRef {
 export interface SyncSettings {
   /** Master on/off switch. */
   enabled: boolean;
-  /** Newline-separated `owner/repo` glob patterns, e.g. `Teamwork/*`. */
-  allowlist: string;
   /** Countdown before approving, giving the user a chance to cancel. 0 = immediate. */
   delaySeconds: number;
   /** Don't approve draft PRs. */
@@ -34,7 +32,6 @@ export type Settings = SyncSettings & LocalSettings;
 
 export const SYNC_DEFAULTS: SyncSettings = {
   enabled: true,
-  allowlist: "",
   delaySeconds: 3,
   skipDrafts: true,
   body: "",

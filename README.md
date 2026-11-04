@@ -12,7 +12,7 @@ A Chrome extension that approves a GitHub pull request when you open its **Files
 2. Go to `chrome://extensions` and turn on **Developer mode**.
 3. Click **Load unpacked** and pick the `dist/` folder.
 4. Click the extension's toolbar icon to open settings.
-5. Paste a GitHub token, click **Test**, add your repos to the allowlist (for example `Teamwork/*`), then click **Save**.
+5. Paste a GitHub token, click **Test**, then click **Save**.
 
 ## Development
 
@@ -44,7 +44,6 @@ The token is kept in `chrome.storage.local`, so it stays on this device and isn'
 When you land on a PR's changes page, it approves the PR through the GitHub REST API if all of these are true:
 
 - the extension is enabled
-- the repo matches a line in the allowlist
 - the PR is open, and isn't a draft (unless you turned off "Skip draft PRs")
 - you aren't the PR's author
 - your latest review on the PR isn't already an approval

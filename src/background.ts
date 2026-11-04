@@ -48,28 +48,6 @@ const prKey = ({ owner, repo, number }: PullRef): string => `${owner}/${repo}#${
 /** Case-insensitive login comparison (GitHub logins aren't case-sensitive). */
 const sameUser = (a: string | undefined, b: string): boolean => a?.toLowerCase() === b.toLowerCase();
 
-/**
- * Converts an allowlist glob into an anchored regex. `*` and `?` match
- * within a single path segment, so `Teamwork/*` matches every Teamwork repo
- * but `*` alone matches nothing (it has no slash).
- */
-function globToRegExp(glob: string): RegExp {
-  const escaped = glob
-    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*/g, "[^/]*")
-    .replace(/\?/g, "[^/]");
-  return new RegExp(`^${escaped}$`, "i");
-}
-
-/** True if `owner/repo` matches any non-blank, non-`#` line of the allowlist. */
-function isAllowed(allowlist: string, { owner, repo }: PullRef): boolean {
-  const full = `${owner}/${repo}`;
-  return allowlist
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#"))
-    .some((pattern) => globToRegExp(pattern).test(full));
-}
 
 /**
  * Calls the GitHub REST API and returns the parsed JSON body. Throws with
@@ -124,15 +102,13 @@ async function listReviews(token: string, { owner, repo, number }: PullRef): Pro
 }
 
 /**
- * Decides whether a PR should be auto-approved. The cheap local checks run
- * first so repos outside the allowlist never trigger an API call.
+ * Decides whether a PR should be auto-approved
  */
 async function checkEligibility(pr: PullRef): Promise<Eligibility> {
   const s = await getSettings();
 
   if (!s.enabled) return { eligible: false, reason: "disabled" };
   if (!s.token) return { eligible: false, reason: "no token set (open the extension options)" };
-  if (!isAllowed(s.allowlist, pr)) return { eligible: false, reason: "repo not in allowlist" };
   if (approvedThisSession.has(prKey(pr))) return { eligible: false, reason: "already approved" };
 
   const login = await whoami(s.token);
