@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "PR Auto Approve",
+  "version": "1.0.0",
+  "description": "Automatically approves GitHub pull requests when you open the Files changed page.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.github.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "PR Auto Approve settings"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

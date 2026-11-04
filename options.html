@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PR Auto Approve settings</title>
+  <style>
+    body { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 640px; margin: 32px auto; padding: 0 16px; color: #1f2328; }
+    h1 { font-size: 20px; }
+    label { display: block; font-weight: 600; margin: 18px 0 6px; }
+    .hint { font-weight: normal; color: #57606a; font-size: 12px; }
+    input[type=text], input[type=password], input[type=number], textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #d0d7de; border-radius: 6px; font: inherit; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+    .row label { margin: 0; font-weight: normal; }
+    button { padding: 6px 14px; border-radius: 6px; border: 1px solid #1f883d; background: #1f883d; color: #fff; cursor: pointer; font: inherit; }
+    button.secondary { background: #f6f8fa; color: #1f2328; border-color: #d0d7de; }
+    #status { margin-left: 8px; color: #57606a; }
+  </style>
+</head>
+<body>
+  <h1>PR Auto Approve</h1>
+
+  <div class="row">
+    <input type="checkbox" id="enabled" />
+    <label for="enabled">Enabled</label>
+  </div>
+
+  <label for="token">GitHub token
+    <div class="hint">Fine-grained token with <b>Pull requests: Read and write</b> on the repos, or a classic token with <code>repo</code> scope (authorize it for SSO orgs). Stored only on this device.</div>
+  </label>
+  <div class="row" style="margin-top:0">
+    <input type="password" id="token" placeholder="github_pat_…" />
+    <button class="secondary" id="test">Test</button>
+  </div>
+
+  <label for="allowlist">Repo allowlist
+    <div class="hint">One <code>owner/repo</code> per line. <code>*</code> wildcards allowed, e.g. <code>Teamwork/*</code>. Nothing is approved if this is empty.</div>
+  </label>
+  <textarea id="allowlist" placeholder="Teamwork/deskapi&#10;Teamwork/*"></textarea>
+
+  <label for="delaySeconds">Countdown before approving (seconds)
+    <div class="hint">Gives you a chance to cancel. Set to 0 to approve immediately.</div>
+  </label>
+  <input type="number" id="delaySeconds" min="0" max="60" />
+
+  <div class="row">
+    <input type="checkbox" id="skipDrafts" />
+    <label for="skipDrafts">Skip draft PRs</label>
+  </div>
+
+  <label for="body">Approval comment <span class="hint">(optional)</span></label>
+  <input type="text" id="body" placeholder="LGTM" />
+
+  <div class="row" style="margin-top:24px">
+    <button id="save">Save</button>
+    <span id="status"></span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
