@@ -1,0 +1,28 @@
+[tools]
+node = "24"
+
+[tasks.install]
+description = "Install npm dependencies"
+run = "npm ci"
+sources = ["package.json", "package-lock.json"]
+outputs = ["node_modules/.package-lock.json"]
+
+[tasks.build]
+description = "Build the extension into dist/"
+depends = ["install"]
+run = "npm run build"
+
+[tasks.watch]
+description = "Rebuild src/ on change"
+depends = ["install"]
+run = "npm run watch"
+
+[tasks.typecheck]
+description = "Type check with tsc"
+depends = ["install"]
+run = "npm run typecheck"
+
+[tasks.check]
+description = "Type check, then build"
+depends = ["typecheck"]
+run = "npm run build"

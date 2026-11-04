@@ -4,11 +4,12 @@ A Chrome extension that approves a GitHub pull request when you open its **Files
 
 ## Install
 
-1. Build it:
+1. Build it. With [mise](https://mise.jdx.dev), which installs the pinned Node version and the dependencies:
    ```sh
-   npm install
-   npm run build
+   mise install
+   mise run build
    ```
+   Or with your own Node: `npm install && npm run build`.
 2. Go to `chrome://extensions` and turn on **Developer mode**.
 3. Click **Load unpacked** and pick the `dist/` folder.
 4. Click the extension's toolbar icon to open settings.
@@ -17,6 +18,8 @@ A Chrome extension that approves a GitHub pull request when you open its **Files
 ## Development
 
 The code is TypeScript in `src/`, bundled with esbuild into `dist/`. The manifest and options page live in `static/` and are copied to `dist/` as they are.
+
+Node is pinned to 24 in `mise.toml`. Each npm script below also exists as a mise task (`mise run build`, `mise run watch` and so on), and the tasks run `npm ci` first when dependencies are out of date.
 
 | Command             | What it does                                         |
 | ------------------- | ---------------------------------------------------- |
